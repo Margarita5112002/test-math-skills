@@ -1,1 +1,22 @@
-<p>game works!</p>
+<div>
+    <div>
+        <h2>Select difficulty</h2>
+        <select [(ngModel)]="difficulty">
+            <option value="easy">Easy</option>
+            <option value="mid">Medium</option>
+            <option value="hard">Hard</option>
+        </select>
+        <br/>
+        <h2>Select a game mode</h2>
+        <select [(ngModel)]="mode">
+            <option value="zen">Zen (complete a set number of puzzles at your own pace)</option>
+            <option value="1m-blitz">1-Minute Blitz (do as many puzzles as possible in one minute)</option>
+            <option value="3m-blitz">3-Minute Blitz (do as many puzzles as possible in three minutes)</option>
+            <option value="5m-blitz">5-Minute Blitz (do as many puzzles as possible in five minutes)</option>
+        </select>
+        <br />
+        <br />
+        <input type="button" value="Start" (click)="startGame()"/>
+    </div>
+
+</div>
