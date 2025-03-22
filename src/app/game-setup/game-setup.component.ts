@@ -28,8 +28,8 @@ export class GameSetupComponent {
         this.onStartGame.emit({
             difficulty: this.difficulty(),
             mode: this.mode(),
-            numProblems: this.zenNumberOfProblems(),
-            timeLimitMinutes: this.blitzTime()
+            numProblems: Number(this.zenNumberOfProblems()),
+            timeLimitMinutes: Number(this.blitzTime())
         } as GameSetupSettings)
     }
 
