@@ -22,9 +22,7 @@ jobs:
         run: npm run build:prod
       - name: Run unit tests
         run: npm run test
-      - name: Deploy to gh pages
-        run: |
-          npx angular-cli-ghpages --dir=dist/test-math-skills
-        env:
-          CI: true
-          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+      - name: Deploy 🚀
+        uses: JamesIves/github-pages-deploy-action@v4
+        with:
+          folder: dist
