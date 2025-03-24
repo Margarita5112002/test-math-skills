@@ -22,22 +22,5 @@ jobs:
         run: npm run build:prod
       - name: Run unit tests
         run: npm run test
-      - name: Upload static files as artifact
-        id: deployment
-        uses: actions/upload-pages-artifact@v3 
-        with:
-          path: dist/
-  deploy:
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    runs-on: ubuntu-latest
-    needs: build
-    permissions:
-        id-token: write
-        deployments: write
-        pages: write
-    steps:
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
+      - name: Deploy
+        run: ng deploy --base-href=/test-math-skills/
