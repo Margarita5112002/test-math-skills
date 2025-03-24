@@ -9,7 +9,7 @@
     "watch": "ng build --watch --configuration development",
     "test": "jest",
     "test:ci": "jest --runInBand",
-    "deploy:ci": "ng deploy --base-href=/test-math-skills/"
+    "deploy:ci": "npx ng deploy --base-href=/test-math-skills/"
   },
   "jest": {
     "preset": "jest-preset-angular",
