@@ -5,7 +5,9 @@ on:
     branches: main
 
 jobs:
-  build:
+  build-deploy:
+    env:
+        GH_TOKEN: ${{ secrets.GH_TOKEN }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout the source code
@@ -18,9 +20,7 @@ jobs:
           cache-dependency-path: package-lock.json
       - name: Install dependencies
         run: npm install
-      - name: Build project
-        run: npm run build:prod
       - name: Run unit tests
         run: npm run test
       - name: Deploy
-        run: npm run deploy:ci
+        run: npm run ng -- deploy --base-href=/test-math-skills/ --name="Margarita5112002" --email=margaritaalcaraz@gmail.com

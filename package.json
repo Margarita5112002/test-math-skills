@@ -5,11 +5,9 @@
     "ng": "ng",
     "start": "ng serve",
     "build": "ng build",
-    "build:prod": "ng build --configuration=production --base-href=/",
     "watch": "ng build --watch --configuration development",
     "test": "jest",
-    "test:ci": "jest --runInBand",
-    "deploy:ci": "npx ng deploy --base-href=/test-math-skills/"
+    "test:ci": "jest --runInBand"
   },
   "jest": {
     "preset": "jest-preset-angular",
