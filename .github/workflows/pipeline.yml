@@ -3,9 +3,12 @@ name: Main pipeline
 on:
   push:
     branches: main
+  pull_request:
+    branches: [main]
+    types: [opened, synchronize]
 
 jobs:
-  build-deploy:
+  build:
     env:
         GH_TOKEN: ${{ secrets.GH_TOKEN }}
     runs-on: ubuntu-latest
@@ -22,5 +25,10 @@ jobs:
         run: npm install
       - name: Run unit tests
         run: npm run test
+  deploy:
+    env:
+      GH_TOKEN: ${{ secrets.GH_TOKEN }}
+    runs-on: ubuntu-latest
+    steps:
       - name: Deploy
         run: npm run ng -- deploy --base-href=/test-math-skills/ --name="Margarita5112002" --email=margaritaalcaraz@gmail.com
