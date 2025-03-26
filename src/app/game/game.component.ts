@@ -6,7 +6,7 @@ import { MathProblemService } from '../math-problems/math-problem.service';
 
 @Component({
     selector: 'app-game',
-    imports: [FormsModule, FormsModule],
+    imports: [FormsModule],
     templateUrl: './game.component.html',
     styleUrl: './game.component.css'
 })
