@@ -122,7 +122,7 @@ export class MathProblemService {
     }
 
     getRandomMathProblem(difficulty: MathProblemDifficulty): MathProblem {
-        const all = [ MathProblemType.ADD, MathProblemType.DIV, MathProblemType.MULT, MathProblemType.SUB ]
+        const all = Object.values(MathProblemType)
         const random = this.numberGenerator.getRandomInRange(0, 3)
         return this.getMathProblem(all[random], difficulty)
     }

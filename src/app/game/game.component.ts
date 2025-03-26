@@ -1,6 +1,7 @@
 import { Component, input } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { GameSetupSettings } from '../interfaces/game-setup-settings';
+import { MathProblemDifficulty } from '../interfaces/math-problem';
 
 @Component({
   selector: 'app-game',
@@ -10,7 +11,7 @@ import { GameSetupSettings } from '../interfaces/game-setup-settings';
 })
 export class GameComponent {
     gameSettings = input<GameSetupSettings>({
-        difficulty: 'mid',
+        difficulty: MathProblemDifficulty.MID,
         mode: 'zen',
         timeLimitMinutes: 3,
         numProblems: 10
