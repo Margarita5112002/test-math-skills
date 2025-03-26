@@ -1,13 +1,12 @@
-import { Component, input, signal } from '@angular/core';
+import { Component, computed, input, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { GameSetupSettings } from '../interfaces/game-setup-settings';
 import { MathProblem, MathProblemDifficulty, MathProblemType } from '../interfaces/math-problem';
-import { MathProblemDisplayComponent } from "./math-problem-display/math-problem-display.component";
 import { MathProblemService } from '../math-problems/math-problem.service';
 
 @Component({
     selector: 'app-game',
-    imports: [FormsModule, MathProblemDisplayComponent],
+    imports: [FormsModule, FormsModule],
     templateUrl: './game.component.html',
     styleUrl: './game.component.css'
 })
@@ -25,12 +24,30 @@ export class GameComponent {
         operand2: 1,
         solution: 2
     })
+    answer = signal(0)
+    isRight = computed(() => {
+        if(!this.currMathProblem()) return null
+        return this.answer() == this.currMathProblem().solution
+    })
 
     constructor(private problemService: MathProblemService) {
     }
 
     ngOnInit() {
-        this.currMathProblem.set(this.problemService.getRandomMathProblem(this.gameSettings().difficulty))
+        this.generateNewProblem()
+    }
+
+    generateNewProblem() {
+        const randomProblem = this.problemService.getRandomMathProblem(this.gameSettings().difficulty)
+        if(!randomProblem) throw new Error("Math problem undefined; return by math problem service")
+        this.currMathProblem.set(randomProblem)
+    }
+
+    onAnswerEnter() {
+        if(this.isRight()) {
+            this.generateNewProblem()
+            this.answer.set(0)
+        }
     }
 
 }
