@@ -1,1 +1,4 @@
-<div>Game starts! {{gameSettings().mode}}, {{gameSettings().difficulty}}, problems {{gameSettings().numProblems}}, time {{gameSettings().timeLimitMinutes}}</div>
+<div>Game starts!</div>
+<form>
+    <math-problem-display (mathProblem)="currMathProblem()" />
+</form>
