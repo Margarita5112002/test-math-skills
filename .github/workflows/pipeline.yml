@@ -26,6 +26,7 @@ jobs:
       - name: Run unit tests
         run: npm run test
   deploy:
+    if: ${{ github.event_name != 'pull_request' }}
     env:
       GH_TOKEN: ${{ secrets.GH_TOKEN }}
     runs-on: ubuntu-latest
