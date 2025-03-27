@@ -1,10 +1,14 @@
 <div>Game starts!</div>
 <div>
     Correct problems: {{ correctProblemsCounter() }}
+    Tries: {{ triesCounter() }}
 </div>
 <form>
     <div>
         {{currMathProblem().operand1}} {{currMathProblem().type}} {{currMathProblem().operand2}} = ??
+        @if (hint()) {
+            <div>{{hint()}}</div>
+        }
     </div>
     <br />
     <input [(ngModel)]="answer" (keyup.enter)="onAnswerEnter()" name="answer" type="number"/>
