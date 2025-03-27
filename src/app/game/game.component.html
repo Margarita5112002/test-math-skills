@@ -1,16 +1,28 @@
 <div>Game starts!</div>
 <div>
-    Correct problems: {{ correctProblemsCounter() }}
-    Tries: {{ triesCounter() }}
+  Correct problems: {{ correctProblemsCounter() }} Tries:
+  {{ triesCounter() }} Fail problems: {{ failProblems() }}
+  <br /><br />
+  Remaining tries for this problem: {{ remainingTries() }}
 </div>
 <form>
-    <div>
-        {{currMathProblem().operand1}} {{currMathProblem().type}} {{currMathProblem().operand2}} = ??
-        @if (hint()) {
-            <div>{{hint()}}</div>
-        }
-    </div>
-    <br />
-    <input [(ngModel)]="answer" (keyup.enter)="onAnswerEnter()" name="answer" type="number"/>
-    <input type="button" value="Try" (click)="onAnswerEnter()"/>
+  <div>
+    {{ currMathProblem().operand1 }} {{ currMathProblem().type }}
+    {{ currMathProblem().operand2 }} = @if (showAnswer()) {
+    {{ currMathProblem().solution }} } @else { ?? } @if (hint()) {
+    <div>{{ hint() }}</div>
+    }
+  </div>
+  <br />
+  @if (showAnswer()) {
+  <input type="button" value="Continue" (keyup.enter)="onContinueButtonPress()" (click)="onContinueButtonPress()" />
+  } @else {
+  <input
+    [(ngModel)]="answer"
+    (keyup.enter)="onAnswerEnter()"
+    name="answer"
+    type="number"
+  />
+  <input type="button" value="Try" (click)="onAnswerEnter()" />
+  }
 </form>

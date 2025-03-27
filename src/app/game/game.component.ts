@@ -27,8 +27,11 @@ export class GameComponent {
 
     correctProblemsCounter = signal(0)
     triesCounter = signal(0)
+    failProblems = signal(0)
+    remainingTries = signal(3)
 
     answer = signal(0)
+    showAnswer = computed(() => this.remainingTries() === 0)
     isRight = computed(() => {
         if (!this.currMathProblem()) return null
         return this.answer() == this.currMathProblem().solution
@@ -54,12 +57,26 @@ export class GameComponent {
             this.answer.set(0)
             this.correctProblemsCounter.update(v => v + 1)
             this.hint.set(null)
-        } else if (this.currMathProblem().solution > this.answer()) {
-            this.hint.set('Try a higher number')
-        } else if (this.currMathProblem().solution < this.answer()) {
-            this.hint.set('Try a lower number')
+            this.remainingTries.set(3)
+        } else {
+            if (this.currMathProblem().solution > this.answer()) {
+                this.hint.set('Try a higher number')
+            } else if (this.currMathProblem().solution < this.answer()) {
+                this.hint.set('Try a lower number')
+            }
+            this.remainingTries.update(v => v - 1)
+            if (this.remainingTries() === 0) { 
+                this.hint.set(null) 
+                this.failProblems.update(v => v + 1)
+            }
         }
         this.triesCounter.update(v => v + 1)
+    }
+
+    onContinueButtonPress() {
+        this.remainingTries.set(3)
+        this.generateNewProblem()
+        this.answer.set(0)
     }
 
 }
