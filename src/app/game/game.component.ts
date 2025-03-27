@@ -24,6 +24,7 @@ export class GameComponent {
         operand2: 1,
         solution: 2
     })
+    correctProblemsCounter = signal(0)
     answer = signal(0)
     isRight = computed(() => {
         if(!this.currMathProblem()) return null
@@ -47,6 +48,7 @@ export class GameComponent {
         if(this.isRight()) {
             this.generateNewProblem()
             this.answer.set(0)
+            this.correctProblemsCounter.update(v => v + 1)
         }
     }
 
