@@ -24,7 +24,6 @@ export class GameSetupComponent {
     onStartGame = output<GameSetupSettings>()
 
     startGame() {
-        console.log(`difficulty ${this.difficulty()}, mode ${this.mode()}, blitzTime ${this.blitzTime()}, nProblem ${this.zenNumberOfProblems()}`)
         this.onStartGame.emit({
             difficulty: this.difficulty(),
             mode: this.mode(),

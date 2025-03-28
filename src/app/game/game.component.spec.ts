@@ -7,6 +7,22 @@ import { FormsModule } from '@angular/forms'
 import { userEvent } from '@testing-library/user-event'
 
 describe('Game Screen', () => {
+    function expectTriesCounterToBe(counterValue: number) {
+        expect(screen.getByText(new RegExp(`Tries: ${counterValue}`))).toBeInTheDocument()
+    }
+
+    function expectCorrectProblemsCounterToBe(counterValue: number) {
+        expect(screen.getByText(new RegExp(`Correct problems: ${counterValue}`))).toBeInTheDocument()
+    }
+
+    function expectFailProblemsCounterToBe(counterValue: number) {
+        expect(screen.getByText(new RegExp(`Fail problems: ${counterValue}`))).toBeInTheDocument()
+    }
+
+    function expectRemainingTriesCounterToBe(counterValue: number) {
+        expect(screen.getByText(new RegExp(`Remaining tries for this problem: ${counterValue}`))).toBeInTheDocument()
+    }
+
     it('should display a random math problem', async () => {
         const getRandomMathProblemSpy = jest.fn()
         getRandomMathProblemSpy.mockReturnValue({
@@ -61,18 +77,18 @@ describe('Game Screen', () => {
         expect(screen.getByText(/10 \/ 5 =/)).toBeInTheDocument()
     })
 
-    it('should show the same problem if the answer is wrong', async () => {
+    it('should count if answer a problem correctly', async () => {
         const getRandomMathProblemSpy = jest.fn()
         getRandomMathProblemSpy.mockReturnValueOnce({
             type: MathProblemType.MULT,
-            operand1: 2,
-            operand2: 5,
-            solution: 10,
+            operand1: 8,
+            operand2: 4,
+            solution: 32,
             difficulty: MathProblemDifficulty.EASY
         }).mockReturnValueOnce({
             type: MathProblemType.DIV,
-            operand1: 10,
-            operand2: 5,
+            operand1: 8,
+            operand2: 4,
             solution: 2,
             difficulty: MathProblemDifficulty.EASY
         })
@@ -86,11 +102,160 @@ describe('Game Screen', () => {
             }]
         })
 
-        expect(screen.getByText(/2 \* 5 =/)).toBeInTheDocument()
+        expect(screen.getByText(/8 \* 4 =/)).toBeInTheDocument()
+        expectCorrectProblemsCounterToBe(0)
 
-        await user.type(screen.getByRole('spinbutton'), '11')
+        await user.type(screen.getByRole('spinbutton'), '32')
         await user.click(screen.getByRole('button', { name: 'Try' }))
 
-        expect(screen.getByText(/2 \* 5 =/)).toBeInTheDocument()
+        expect(screen.getByText(/8 \/ 4 =/)).toBeInTheDocument()
+        expectCorrectProblemsCounterToBe(1)
+    })
+
+    it('should count tries if answer a problem incorrectly', async () => {
+        const getRandomMathProblemSpy = jest.fn()
+        getRandomMathProblemSpy.mockReturnValueOnce({
+            type: MathProblemType.ADD,
+            operand1: 50,
+            operand2: 10,
+            solution: 60,
+            difficulty: MathProblemDifficulty.EASY
+        }).mockReturnValueOnce({
+            type: MathProblemType.SUB,
+            operand1: 10,
+            operand2: 5,
+            solution: 5,
+            difficulty: MathProblemDifficulty.EASY
+        })
+        const user = userEvent.setup()
+
+        await render(GameComponent, {
+            imports: [FormsModule],
+            providers: [{
+                provide: MathProblemService,
+                useValue: {getRandomMathProblem: getRandomMathProblemSpy}
+            }]
+        })
+
+        expect(screen.getByText(/50 \+ 10 =/)).toBeInTheDocument()
+        expectTriesCounterToBe(0)
+
+        await user.type(screen.getByRole('spinbutton'), '50')
+        await user.click(screen.getByRole('button', { name: 'Try' }))
+
+        expect(screen.getByText(/50 \+ 10 =/)).toBeInTheDocument()
+        expectTriesCounterToBe(1)
+    })
+
+    it('should count a fail problem if answer a problem incorrectly three times', async () => {
+        const getRandomMathProblemSpy = jest.fn()
+        getRandomMathProblemSpy.mockReturnValueOnce({
+            type: MathProblemType.ADD,
+            operand1: 7,
+            operand2: 3,
+            solution: 10,
+            difficulty: MathProblemDifficulty.EASY
+        }).mockReturnValueOnce({
+            type: MathProblemType.MULT,
+            operand1: 7,
+            operand2: 5,
+            solution: 35,
+            difficulty: MathProblemDifficulty.EASY
+        })
+        const user = userEvent.setup()
+
+        await render(GameComponent, {
+            imports: [FormsModule],
+            providers: [{
+                provide: MathProblemService,
+                useValue: {getRandomMathProblem: getRandomMathProblemSpy}
+            }]
+        })
+
+        expect(screen.getByText(/7 \+ 3 =/)).toBeInTheDocument()
+        expectFailProblemsCounterToBe(0)
+        expectRemainingTriesCounterToBe(3)
+
+        await user.type(screen.getByRole('spinbutton'), '50')
+        await user.click(screen.getByRole('button', { name: 'Try' }))
+
+        expect(screen.getByText(/7 \+ 3 =/)).toBeInTheDocument()
+        expectFailProblemsCounterToBe(0)
+        expectRemainingTriesCounterToBe(2)
+
+        await user.type(screen.getByRole('spinbutton'), '5')
+        await user.click(screen.getByRole('button', { name: 'Try' }))
+
+        expect(screen.getByText(/7 \+ 3 =/)).toBeInTheDocument()
+        expectFailProblemsCounterToBe(0)
+        expectRemainingTriesCounterToBe(1)
+
+        await user.type(screen.getByRole('spinbutton'), '19')
+        await user.click(screen.getByRole('button', { name: 'Try' }))
+
+        expect(screen.getByText(/7 \+ 3 = 10/)).toBeInTheDocument()
+        expectFailProblemsCounterToBe(1)
+        expectRemainingTriesCounterToBe(0)
+
+        await user.click(screen.getByRole('button', { name: /Continue/ }))
+
+        expect(screen.getByText(/7 \* 5 =/)).toBeInTheDocument()
+        expectRemainingTriesCounterToBe(3)
+    })
+
+    it('should hint a lower number if answer a problem incorrectly with a high number', async () => {
+        const getRandomMathProblemSpy = jest.fn()
+        getRandomMathProblemSpy.mockReturnValueOnce({
+            type: MathProblemType.SUB,
+            operand1: 70,
+            operand2: 70,
+            solution: 0,
+            difficulty: MathProblemDifficulty.EASY
+        })
+
+        const user = userEvent.setup()
+
+        await render(GameComponent, {
+            imports: [FormsModule],
+            providers: [{
+                provide: MathProblemService,
+                useValue: {getRandomMathProblem: getRandomMathProblemSpy}
+            }]
+        })
+
+        expect(screen.getByText(/70 - 70 =/)).toBeInTheDocument()
+
+        await user.type(screen.getByRole('spinbutton'), '5')
+        await user.click(screen.getByRole('button', { name: 'Try' }))
+
+        expect(screen.getByText(/Try a lower number/)).toBeInTheDocument()
+    })
+
+    it('should hint a higher number if answer a problem incorrectly with a low number', async () => {
+        const getRandomMathProblemSpy = jest.fn()
+        getRandomMathProblemSpy.mockReturnValueOnce({
+            type: MathProblemType.SUB,
+            operand1: 50,
+            operand2: 70,
+            solution: -20,
+            difficulty: MathProblemDifficulty.EASY
+        })
+
+        const user = userEvent.setup()
+
+        await render(GameComponent, {
+            imports: [FormsModule],
+            providers: [{
+                provide: MathProblemService,
+                useValue: {getRandomMathProblem: getRandomMathProblemSpy}
+            }]
+        })
+
+        expect(screen.getByText(/50 - 70 =/)).toBeInTheDocument()
+
+        await user.type(screen.getByRole('spinbutton'), '-50', { initialSelectionStart: 0 })
+        await user.click(screen.getByRole('button', { name: 'Try' }))
+
+        expect(screen.getByText(/Try a higher number/)).toBeInTheDocument()
     })
 })
