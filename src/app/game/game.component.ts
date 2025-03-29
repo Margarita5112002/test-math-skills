@@ -78,7 +78,12 @@ export class GameComponent {
 
     shouldFinishGame() {
         if (this.correctProblemsCounter() >= this.gameSettings().numProblems) {
-
+            this.onGameFinish.emit({
+                ...this.gameSettings(),
+                timeTakenMinutes: this.gameSettings().numProblems,
+                problemsCounter: this.problemsCounter(),
+                tries: this.triesCounter()
+            })
         }
     }
 

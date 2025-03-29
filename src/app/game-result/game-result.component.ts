@@ -4,7 +4,7 @@ import { MathProblemDifficulty } from "../interfaces/math-problem";
 
 @Component({
     selector: 'game-result',
-    templateUrl: './game-result.component.ts',
+    templateUrl: './game-result.component.html',
     styleUrl: './game-result.component.css'
 })
 export class GameResultComponent {
