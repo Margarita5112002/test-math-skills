@@ -1,4 +1,4 @@
-import { Component, computed, input, Signal } from "@angular/core";
+import { Component, computed, input, output, Signal } from "@angular/core";
 import { GameResult } from "../interfaces/game-result";
 import { MathProblemDifficulty, MathProblemType } from "../interfaces/math-problem";
 
@@ -82,6 +82,10 @@ export class GameResultComponent {
             }
         }
     })
-
+    onPlayAgain = output()
+    
+    playAgain() {
+        this.onPlayAgain.emit()
+    }
 
 }

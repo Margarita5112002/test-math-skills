@@ -35,7 +35,15 @@ export class GameManagerComponent {
 
     loadGameResultComponent(sets: GameResult) {
         this.gameResultRef = this.vcr.createComponent(GameResultComponent)
+        this.gameResultRef.instance.onPlayAgain.subscribe(this.whenPlayAgain.bind(this))
         this.gameResultRef.setInput("gameResultInput", sets)
+    }
+    
+    whenPlayAgain() {
+        if(this.gameResultRef != null) {
+            this.gameResultRef.destroy()
+        }
+        this.loadGameSetup()
     }
 
     whenGameEnds(result: GameResult) {
