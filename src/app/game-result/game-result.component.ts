@@ -15,7 +15,7 @@ export class GameResultComponent {
         numProblems: 10,
         tries: 30,
         mode: 'blitz',
-        correctProblems: {
+        problemsCounter: {
             MULT: { correct: 10, fail: 10 },
             SUB: { correct: 10, fail: 10 },
             ADD: { correct: 10, fail: 10 },
@@ -23,10 +23,10 @@ export class GameResultComponent {
         }
     })
     totalCorrectProblems = computed(() => 
-        Object.values(this.gameResultInput().correctProblems).reduce((p, c) => p + c.correct, 0)
+        Object.values(this.gameResultInput().problemsCounter).reduce((p, c) => p + c.correct, 0)
     )
     totalProblems = computed(() => 
-        Object.values(this.gameResultInput().correctProblems).reduce((p, c) => p + c.fail + c.correct, 0)
+        Object.values(this.gameResultInput().problemsCounter).reduce((p, c) => p + c.fail + c.correct, 0)
     )
 
 

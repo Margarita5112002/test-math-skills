@@ -27,11 +27,33 @@ export class GameComponent {
         operand2: 1,
         solution: 2
     })
+    problemSign = computed(() => {
+        switch (this.currMathProblem().type) {
+            case MathProblemType.ADD:
+                return "+";
+            case MathProblemType.DIV:
+                return "/";
+            case MathProblemType.MULT:
+                return "*";
+            case MathProblemType.SUB:
+                return "-"
+        }
+    })
 
-    correctProblemsCounter = signal(0)
+    problemsCounter = signal<GameResult["problemsCounter"]>({
+        MULT: { correct: 0, fail: 0 },
+        DIV: { correct: 0, fail: 0 },
+        SUB: { correct: 0, fail: 0 },
+        ADD: { correct: 0, fail: 0 },
+    })
     triesCounter = signal(0)
-    failProblems = signal(0)
     remainingTries = signal(3)
+    correctProblemsCounter = computed(() => {
+        return Object.values(this.problemsCounter()).reduce((p, c) => p + c.correct, 0)
+    })
+    failProblemsCounter = computed(() => {
+        return Object.values(this.problemsCounter()).reduce((p, c) => p + c.fail, 0)
+    })
 
     answer = signal(0)
     showAnswer = computed(() => this.remainingTries() === 0)
@@ -55,17 +77,31 @@ export class GameComponent {
     }
 
     shouldFinishGame() {
-        if(this.correctProblemsCounter() >= this.gameSettings().numProblems) {
-            
+        if (this.correctProblemsCounter() >= this.gameSettings().numProblems) {
+
         }
+    }
+
+    addOneToProblem(typeProblem: MathProblemType, addToCorrect: boolean) {
+        this.problemsCounter.update((current) => ({
+            ...current,
+            [typeProblem]: {
+                correct: addToCorrect
+                    ? current[typeProblem].correct + 1
+                    : current[typeProblem].correct,
+                fail: addToCorrect
+                    ? current[typeProblem].fail
+                    : current[typeProblem].fail + 1,
+            },
+        }));
     }
 
     onAnswerEnter() {
         this.triesCounter.update(v => v + 1)
         if (this.isRight()) {
+            this.addOneToProblem(this.currMathProblem().type, true)
             this.generateNewProblem()
             this.answer.set(0)
-            this.correctProblemsCounter.update(v => v + 1)
             this.hint.set(null)
             this.remainingTries.set(3)
             this.shouldFinishGame()
@@ -76,9 +112,9 @@ export class GameComponent {
                 this.hint.set('Try a lower number')
             }
             this.remainingTries.update(v => v - 1)
-            if (this.remainingTries() === 0) { 
-                this.hint.set(null) 
-                this.failProblems.update(v => v + 1)
+            if (this.remainingTries() === 0) {
+                this.hint.set(null)
+                this.addOneToProblem(this.currMathProblem().type, false)
             }
         }
     }

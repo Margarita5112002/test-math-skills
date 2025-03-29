@@ -1,10 +1,10 @@
 import { GameSetupSettings } from "./game-setup-settings";
 
 export enum MathProblemType {
-    ADD = '+',
-    SUB = '-',
-    MULT = '*',
-    DIV = '/'
+    ADD = 'ADD',
+    SUB = 'SUB',
+    MULT = 'MULT',
+    DIV = 'DIV'
 }
 
 export enum MathProblemDifficulty {
