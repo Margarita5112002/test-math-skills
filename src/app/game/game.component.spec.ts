@@ -1,10 +1,12 @@
 import { render, screen } from '@testing-library/angular'
 import '@testing-library/jest-dom'
 import { GameComponent } from './game.component'
-import { MathProblemDifficulty, MathProblemType } from '../interfaces/math-problem'
+import { MathProblem, MathProblemDifficulty, MathProblemType } from '../interfaces/math-problem'
 import { MathProblemService } from '../math-problems/math-problem.service'
 import { FormsModule } from '@angular/forms'
-import { userEvent } from '@testing-library/user-event'
+import { UserEvent, userEvent } from '@testing-library/user-event'
+import { GameSetupSettings } from '../interfaces/game-setup-settings'
+import { GameResult } from '../interfaces/game-result'
 
 describe('Game Screen', () => {
     function expectTriesCounterToBe(counterValue: number) {
@@ -37,7 +39,7 @@ describe('Game Screen', () => {
             imports: [FormsModule],
             providers: [{
                 provide: MathProblemService,
-                useValue: {getRandomMathProblem: getRandomMathProblemSpy}
+                useValue: { getRandomMathProblem: getRandomMathProblemSpy }
             }]
         })
 
@@ -65,7 +67,7 @@ describe('Game Screen', () => {
             imports: [FormsModule],
             providers: [{
                 provide: MathProblemService,
-                useValue: {getRandomMathProblem: getRandomMathProblemSpy}
+                useValue: { getRandomMathProblem: getRandomMathProblemSpy }
             }]
         })
 
@@ -98,7 +100,7 @@ describe('Game Screen', () => {
             imports: [FormsModule],
             providers: [{
                 provide: MathProblemService,
-                useValue: {getRandomMathProblem: getRandomMathProblemSpy}
+                useValue: { getRandomMathProblem: getRandomMathProblemSpy }
             }]
         })
 
@@ -133,7 +135,7 @@ describe('Game Screen', () => {
             imports: [FormsModule],
             providers: [{
                 provide: MathProblemService,
-                useValue: {getRandomMathProblem: getRandomMathProblemSpy}
+                useValue: { getRandomMathProblem: getRandomMathProblemSpy }
             }]
         })
 
@@ -168,7 +170,7 @@ describe('Game Screen', () => {
             imports: [FormsModule],
             providers: [{
                 provide: MathProblemService,
-                useValue: {getRandomMathProblem: getRandomMathProblemSpy}
+                useValue: { getRandomMathProblem: getRandomMathProblemSpy }
             }]
         })
 
@@ -219,7 +221,7 @@ describe('Game Screen', () => {
             imports: [FormsModule],
             providers: [{
                 provide: MathProblemService,
-                useValue: {getRandomMathProblem: getRandomMathProblemSpy}
+                useValue: { getRandomMathProblem: getRandomMathProblemSpy }
             }]
         })
 
@@ -247,7 +249,7 @@ describe('Game Screen', () => {
             imports: [FormsModule],
             providers: [{
                 provide: MathProblemService,
-                useValue: {getRandomMathProblem: getRandomMathProblemSpy}
+                useValue: { getRandomMathProblem: getRandomMathProblemSpy }
             }]
         })
 
@@ -258,4 +260,132 @@ describe('Game Screen', () => {
 
         expect(screen.getByText(/Try a higher number/)).toBeInTheDocument()
     })
+
+    async function answerNextProblemCorrectly(user: UserEvent, problem: MathProblem) {
+        await user.clear(screen.getByRole('spinbutton'))
+        await user.type(screen.getByRole('spinbutton'), String(problem.solution), { initialSelectionStart: 0 })
+        await user.click(screen.getByRole('button', { name: 'Try' }))
+    }
+
+    async function answerNextProblemIncorrectly(user: UserEvent, problem: MathProblem) {
+        for (let i = 0; i < 3; i++) {
+            await user.clear(screen.getByRole('spinbutton'))
+            await user.type(screen.getByRole('spinbutton'), String(problem.solution + 1), { initialSelectionStart: 0 })
+            await user.click(screen.getByRole('button', { name: 'Try' }))
+        }
+        await user.click(screen.getByRole('button', { name: 'Continue' }))
+    }
+
+    it('should emit game result when answer 10 problems correctly if it is zen mode with 10 problems', async () => {
+        const problem: MathProblem = {
+            difficulty: MathProblemDifficulty.EASY,
+            operand1: 10,
+            operand2: 5,
+            solution: 50,
+            type: MathProblemType.MULT
+        }
+        const gameSettingsUsed: GameSetupSettings = {
+            difficulty: MathProblemDifficulty.EASY,
+            mode: 'zen',
+            timeLimitMinutes: 3,
+            numProblems: 10
+        }
+
+        const getRandomMathProblemSpy = jest.fn()
+        getRandomMathProblemSpy.mockReturnValue(problem)
+
+        const onGameFinishSpy = jest.fn()
+
+        const user = userEvent.setup()
+
+        await render(GameComponent, {
+            imports: [FormsModule],
+            providers: [{
+                provide: MathProblemService,
+                useValue: { getRandomMathProblem: getRandomMathProblemSpy }
+            }],
+            inputs: {
+                gameSettings: gameSettingsUsed
+            },
+            on: {
+                onGameFinish: onGameFinishSpy
+            }
+        })
+
+        for (let i = 0; i < 10; i++)
+            await answerNextProblemCorrectly(user, problem)
+
+        const resultExpected: GameResult = {
+            ...gameSettingsUsed,
+            timeTakenMinutes: gameSettingsUsed.timeLimitMinutes,
+            problemsCounter: {
+                MULT: { correct: 10, fail: 0 },
+                DIV: { correct: 0, fail: 0 },
+                SUB: { correct: 0, fail: 0 },
+                ADD: { correct: 0, fail: 0 },
+            },
+            tries: 10
+        }
+        expect(onGameFinishSpy.mock.calls).toHaveLength(1)
+        expect(onGameFinishSpy.mock.calls[0][0]).toStrictEqual(resultExpected)
+    })
+
+    it('should emit game result when answer 10 problems correctly but should not count incorrectly answers if it is zen mode with 10 problems', async () => {
+        const problem: MathProblem = {
+            difficulty: MathProblemDifficulty.EASY,
+            operand1: 10,
+            operand2: 50,
+            solution: -40,
+            type: MathProblemType.SUB
+        }
+        const gameSettingsUsed: GameSetupSettings = {
+            difficulty: MathProblemDifficulty.EASY,
+            mode: 'zen',
+            timeLimitMinutes: 3,
+            numProblems: 10
+        }
+
+        const getRandomMathProblemSpy = jest.fn()
+        getRandomMathProblemSpy.mockReturnValue(problem)
+
+        const onGameFinishSpy = jest.fn()
+
+        const user = userEvent.setup()
+
+        await render(GameComponent, {
+            imports: [FormsModule],
+            providers: [{
+                provide: MathProblemService,
+                useValue: { getRandomMathProblem: getRandomMathProblemSpy }
+            }],
+            inputs: {
+                gameSettings: gameSettingsUsed
+            },
+            on: {
+                onGameFinish: onGameFinishSpy
+            }
+        })
+
+        await answerNextProblemIncorrectly(user, problem)
+        for (let i = 0; i < 5; i++)
+            await answerNextProblemCorrectly(user, problem)
+        await answerNextProblemIncorrectly(user, problem)
+        for (let i = 0; i < 5; i++)
+            await answerNextProblemCorrectly(user, problem)
+
+        const resultExpected: GameResult = {
+            ...gameSettingsUsed,
+            timeTakenMinutes: gameSettingsUsed.timeLimitMinutes,
+            problemsCounter: {
+                MULT: { correct: 0, fail: 0 },
+                DIV: { correct: 0, fail: 0 },
+                SUB: { correct: 10, fail: 2 },
+                ADD: { correct: 0, fail: 0 },
+            },
+            tries: 16
+        }
+        expect(onGameFinishSpy.mock.calls).toHaveLength(1)
+        expect(onGameFinishSpy.mock.calls[0][0]).toStrictEqual(resultExpected)
+    })
+
 })
