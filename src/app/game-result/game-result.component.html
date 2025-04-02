@@ -1,0 +1,31 @@
+<div>
+    <h2>Game Finish!</h2>
+    <p>Total problems: {{ allProblemCountersVal().all.correct }}
+         / 
+        {{ allProblemCountersVal().all.total }} ({{ allProblemCountersVal().all.correctPercentage }}%)</p>
+    <hr />
+    <p>
+        Aditions: {{ allProblemCountersVal().types.ADD.correct }} / 
+        {{ allProblemCountersVal().types.ADD.total }} 
+        ({{ allProblemCountersVal().types.ADD.correctPercentage }}%)
+    </p>
+    <p>
+        Substractions: {{ allProblemCountersVal().types.SUB.correct }} / 
+        {{ allProblemCountersVal().types.SUB.total }} 
+        ({{ allProblemCountersVal().types.SUB.correctPercentage }}%)
+    </p>
+    <p>
+        Multiplications: {{ allProblemCountersVal().types.MULT.correct }} / 
+        {{ allProblemCountersVal().types.MULT.total }} 
+        ({{ allProblemCountersVal().types.MULT.correctPercentage }}%)
+    </p>
+    <p>
+        Divisions: {{ allProblemCountersVal().types.DIV.correct }} / 
+        {{ allProblemCountersVal().types.DIV.total }} 
+        ({{ allProblemCountersVal().types.DIV.correctPercentage }}%)
+    </p>
+    <br/>
+    <hr />
+    <br/>
+    <input type="button" value="Play Again" (click)="playAgain()"/>
+</div>

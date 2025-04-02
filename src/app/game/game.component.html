@@ -1,13 +1,13 @@
 <div>Game starts!</div>
 <div>
   Correct problems: {{ correctProblemsCounter() }} Tries:
-  {{ triesCounter() }} Fail problems: {{ failProblems() }}
+  {{ triesCounter() }} Fail problems: {{ failProblemsCounter() }}
   <br /><br />
   Remaining tries for this problem: {{ remainingTries() }}
 </div>
 <form>
   <div>
-    {{ currMathProblem().operand1 }} {{ currMathProblem().type }}
+    {{ currMathProblem().operand1 }} {{ problemSign() }}
     {{ currMathProblem().operand2 }} = @if (showAnswer()) {
     {{ currMathProblem().solution }} } @else { ?? } @if (hint()) {
     <div>{{ hint() }}</div>
