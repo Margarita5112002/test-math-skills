@@ -7,6 +7,9 @@ import { FormsModule } from '@angular/forms'
 import { UserEvent, userEvent } from '@testing-library/user-event'
 import { GameSetupSettings } from '../interfaces/game-setup-settings'
 import { GameResult } from '../interfaces/game-result'
+import { GameTimerService } from '../game-timer/game-timer.service'
+import { interval, Observable, of, take } from 'rxjs'
+import { fakeAsync, tick, waitForAsync } from '@angular/core/testing'
 
 describe('Game Screen', () => {
     function expectTriesCounterToBe(counterValue: number) {
@@ -24,6 +27,10 @@ describe('Game Screen', () => {
     function expectRemainingTriesCounterToBe(counterValue: number) {
         expect(screen.getByText(new RegExp(`Remaining tries for this problem: ${counterValue}`))).toBeInTheDocument()
     }
+
+    afterEach(() => {
+        jest.clearAllMocks();
+    });
 
     it('should display a random math problem', async () => {
         const getRandomMathProblemSpy = jest.fn()
@@ -295,6 +302,8 @@ describe('Game Screen', () => {
         getRandomMathProblemSpy.mockReturnValue(problem)
 
         const onGameFinishSpy = jest.fn()
+        const getTimeObservableSpy = jest.fn()
+        getTimeObservableSpy.mockReturnValue(of(60))
 
         const user = userEvent.setup()
 
@@ -303,6 +312,9 @@ describe('Game Screen', () => {
             providers: [{
                 provide: MathProblemService,
                 useValue: { getRandomMathProblem: getRandomMathProblemSpy }
+            }, {
+                provide: GameTimerService,
+                useValue: { getTimeObservable: getTimeObservableSpy }
             }],
             inputs: {
                 gameSettings: gameSettingsUsed
@@ -317,7 +329,7 @@ describe('Game Screen', () => {
 
         const resultExpected: GameResult = {
             ...gameSettingsUsed,
-            timeTakenMinutes: gameSettingsUsed.timeLimitMinutes,
+            timeTakenMinutes: 1,
             problemsCounter: {
                 MULT: { correct: 10, fail: 0 },
                 DIV: { correct: 0, fail: 0 },
@@ -349,6 +361,8 @@ describe('Game Screen', () => {
         getRandomMathProblemSpy.mockReturnValue(problem)
 
         const onGameFinishSpy = jest.fn()
+        const getTimeObservableSpy = jest.fn()
+        getTimeObservableSpy.mockReturnValue(of(60))
 
         const user = userEvent.setup()
 
@@ -357,6 +371,9 @@ describe('Game Screen', () => {
             providers: [{
                 provide: MathProblemService,
                 useValue: { getRandomMathProblem: getRandomMathProblemSpy }
+            }, {
+                provide: GameTimerService,
+                useValue: { getTimeObservable: getTimeObservableSpy }
             }],
             inputs: {
                 gameSettings: gameSettingsUsed
@@ -375,7 +392,7 @@ describe('Game Screen', () => {
 
         const resultExpected: GameResult = {
             ...gameSettingsUsed,
-            timeTakenMinutes: gameSettingsUsed.timeLimitMinutes,
+            timeTakenMinutes: 1,
             problemsCounter: {
                 MULT: { correct: 0, fail: 0 },
                 DIV: { correct: 0, fail: 0 },
@@ -386,6 +403,79 @@ describe('Game Screen', () => {
         }
         expect(onGameFinishSpy.mock.calls).toHaveLength(1)
         expect(onGameFinishSpy.mock.calls[0][0]).toStrictEqual(resultExpected)
+    })
+
+    it('should emit game result when one minute happen if it is blitz mode with one minute limit', async () => {
+        const problem: MathProblem = {
+            difficulty: MathProblemDifficulty.EASY,
+            operand1: 80,
+            operand2: 8,
+            solution: 72,
+            type: MathProblemType.SUB
+        }
+        const gameSettingsUsed: GameSetupSettings = {
+            difficulty: MathProblemDifficulty.EASY,
+            mode: 'blitz',
+            timeLimitMinutes: 1,
+            numProblems: 10
+        }
+
+        jest.useFakeTimers()
+        const getRandomMathProblemSpy = jest.fn().mockReturnValue(problem)
+
+        const onGameFinishSpy = jest.fn()
+
+        const getTimeObservableSpy = jest.fn().mockImplementation(() => {
+            return new Observable<number>(subscriber => {
+                let count = 0;
+                const intervalId = setInterval(() => {
+                    subscriber.next(++count);
+                }, 1000);
+                return () => clearInterval(intervalId);
+            });
+        });
+
+        const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime })
+
+        await render(GameComponent, {
+            imports: [FormsModule],
+            providers: [{
+                provide: MathProblemService,
+                useValue: { getRandomMathProblem: getRandomMathProblemSpy }
+            }, {
+                provide: GameTimerService,
+                useValue: { getTimeObservable: getTimeObservableSpy }
+            }],
+            inputs: {
+                gameSettings: gameSettingsUsed
+            },
+            on: {
+                onGameFinish: onGameFinishSpy
+            }
+        })
+
+        for (let i = 0; i < 10; i++)
+            await answerNextProblemCorrectly(user, problem)
+
+        jest.advanceTimersByTime(59000)
+        expect(onGameFinishSpy.mock.calls).toHaveLength(0)
+        jest.advanceTimersByTime(1000)
+
+        const resultExpected: GameResult = {
+            ...gameSettingsUsed,
+            timeTakenMinutes: 1,
+            problemsCounter: {
+                MULT: { correct: 0, fail: 0 },
+                DIV: { correct: 0, fail: 0 },
+                SUB: { correct: 10, fail: 0 },
+                ADD: { correct: 0, fail: 0 },
+            },
+            tries: 10
+        }
+        expect(onGameFinishSpy.mock.calls).toHaveLength(1)
+        expect(onGameFinishSpy.mock.calls[0][0]).toStrictEqual(resultExpected)
+        jest.runOnlyPendingTimers()
+        jest.useRealTimers()
     })
 
 })

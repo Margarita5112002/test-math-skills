@@ -42,13 +42,9 @@ export class GameResultComponent {
         const tot = totMult + totDiv + totSub + totAdd
         const correctTot = Object.values(this.gameResultInput().problemsCounter).reduce((p, c) => p + c.correct, 0)
 
-        function roundTwoDecimals(n: number) {
-            return Math.round(n * 100) / 100
-        }
-
-        function makePercentage(c: number, t: number) {
+        const makePercentage = (c: number, t: number) => {
             if(t == 0) return 100
-            return roundTwoDecimals((c / t) * 100)
+            return this.roundTwoDecimals((c / t) * 100)
         }
 
         return {
@@ -82,10 +78,26 @@ export class GameResultComponent {
             }
         }
     })
+    displayTime = computed(() => {
+        const seconds = this.gameResultInput().timeTakenMinutes * 60
+        const minutes = Math.floor(seconds / 60)
+        const left = seconds - (minutes * 60)
+        return (minutes > 0 ? `${minutes}m` : '').concat(` ${left}s`)
+    })
+    secondsPerProblem = computed(() => {
+        const seconds = this.gameResultInput().timeTakenMinutes * 60
+        const totProblems = this.allProblemCountersVal().all.correct
+        return this.roundTwoDecimals(seconds / totProblems)
+    })
+
     onPlayAgain = output()
     
     playAgain() {
         this.onPlayAgain.emit()
+    }
+
+    roundTwoDecimals(n: number) {
+        return Math.round(n * 100) / 100
     }
 
 }

@@ -4,6 +4,8 @@ import { GameSetupSettings } from '../interfaces/game-setup-settings';
 import { MathProblem, MathProblemDifficulty, MathProblemType } from '../interfaces/math-problem';
 import { MathProblemService } from '../math-problems/math-problem.service';
 import { GameResult } from '../interfaces/game-result';
+import { GameTimerService } from '../game-timer/game-timer.service';
+import { Subscription } from 'rxjs';
 
 @Component({
     selector: 'app-game',
@@ -19,6 +21,7 @@ export class GameComponent {
         numProblems: 10
     })
     onGameFinish = output<GameResult>()
+    gameTimerSubscription: Subscription | null = null
 
     currMathProblem = signal<MathProblem>({
         type: MathProblemType.ADD,
@@ -54,6 +57,12 @@ export class GameComponent {
     failProblemsCounter = computed(() => {
         return Object.values(this.problemsCounter()).reduce((p, c) => p + c.fail, 0)
     })
+    secondsPassed = signal(0)
+    displayTime = computed(() => {
+        const minutes = Math.floor(this.secondsPassed() / 60)
+        const secondsLeft = this.secondsPassed() - (minutes*60)
+        return (minutes > 0 ? `${minutes}m` : '').concat(` ${secondsLeft}s`)
+    })
 
     answer = signal(0)
     showAnswer = computed(() => this.remainingTries() === 0)
@@ -63,11 +72,16 @@ export class GameComponent {
     })
     hint = signal<string | null>(null)
 
-    constructor(private problemService: MathProblemService) {
+    constructor(private problemService: MathProblemService, private timer: GameTimerService) {
     }
 
     ngOnInit() {
         this.generateNewProblem()
+        this.gameTimerSubscription = this.timer.getTimeObservable().subscribe(this.whenSecondPassed.bind(this))
+    }
+
+    ngOnDestroy() {
+        this.gameTimerSubscription?.unsubscribe()
     }
 
     generateNewProblem() {
@@ -77,7 +91,14 @@ export class GameComponent {
     }
 
     shouldFinishGame() {
-        if (this.correctProblemsCounter() >= this.gameSettings().numProblems) {
+        if (this.gameSettings().mode == 'zen' && this.correctProblemsCounter() >= this.gameSettings().numProblems) {
+            this.onGameFinish.emit({
+                ...this.gameSettings(),
+                timeTakenMinutes: this.secondsPassed() / 60,
+                problemsCounter: this.problemsCounter(),
+                tries: this.triesCounter()
+            })
+        } else if(this.gameSettings().mode == 'blitz' && this.secondsPassed() >= this.gameSettings().timeLimitMinutes * 60) {
             this.onGameFinish.emit({
                 ...this.gameSettings(),
                 timeTakenMinutes: this.gameSettings().timeLimitMinutes,
@@ -99,6 +120,11 @@ export class GameComponent {
                     : current[typeProblem].fail + 1,
             },
         }));
+    }
+
+    whenSecondPassed(seconds: number) {
+        this.secondsPassed.set(seconds)
+        this.shouldFinishGame()
     }
 
     onAnswerEnter() {
