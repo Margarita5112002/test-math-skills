@@ -80,4 +80,30 @@ describe('Game Result', () => {
         expect(screen.getByText(/Divisions: 0 \/ 0 \(100%\)/)).toBeInTheDocument()
 
     })
+
+    it('should display time made and average seconds per problem', async () => {
+        const gameResult: GameResult = {
+            difficulty: MathProblemDifficulty.MID,
+            mode: 'zen',
+            numProblems: 20,
+            timeLimitMinutes: 3,
+            timeTakenMinutes: 5.5,
+            tries: 60,
+            problemsCounter: {
+                MULT: { correct: 10, fail: 1 },
+                DIV: { correct: 2, fail: 5 },
+                SUB: { correct: 3, fail: 1 },
+                ADD: { correct: 5, fail: 10 },
+            }
+        }
+        
+        await render(GameResultComponent, {
+            inputs: {
+                gameResultInput: gameResult
+            }
+        })
+
+        expect(screen.getByText(/Time: 5m 30s/)).toBeInTheDocument()
+        expect(screen.getByText(/16.5 seconds per correct problem/)).toBeInTheDocument()
+    })
 })

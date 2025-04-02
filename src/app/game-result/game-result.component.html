@@ -3,6 +3,8 @@
     <p>Total problems: {{ allProblemCountersVal().all.correct }}
          / 
         {{ allProblemCountersVal().all.total }} ({{ allProblemCountersVal().all.correctPercentage }}%)</p>
+    <br />
+    <p>Time: {{displayTime()}} | {{ secondsPerProblem() }} seconds per correct problem</p>
     <hr />
     <p>
         Aditions: {{ allProblemCountersVal().types.ADD.correct }} / 
