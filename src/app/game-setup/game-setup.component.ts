@@ -2,6 +2,7 @@ import { NgTemplateOutlet } from '@angular/common';
 import { Component, computed, output, signal, TemplateRef, viewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { GameSetupSettings } from '../interfaces/game-setup-settings';
+import { stringToMathProblemDifficulty } from '../interfaces/math-problem.utils';
 
 @Component({
     selector: 'app-game-setup',
@@ -24,12 +25,20 @@ export class GameSetupComponent {
     onStartGame = output<GameSetupSettings>()
 
     startGame() {
-        this.onStartGame.emit({
-            difficulty: this.difficulty(),
-            mode: this.mode(),
-            numProblems: Number(this.zenNumberOfProblems()),
-            timeLimitMinutes: Number(this.blitzTime())
-        } as GameSetupSettings)
+        const modeChose = this.mode() == 'zen' ? 'zen' : 'blitz'
+        if(modeChose === 'zen') {
+            this.onStartGame.emit({
+                difficulty: stringToMathProblemDifficulty(this.difficulty()),
+                mode: modeChose,
+                problemsToFinish: Number(this.zenNumberOfProblems())
+            })
+        } else {
+            this.onStartGame.emit({
+                difficulty: stringToMathProblemDifficulty(this.difficulty()),
+                mode: modeChose,
+                timeLimitMinutes: Number(this.blitzTime())
+            })
+        }
     }
 
 }

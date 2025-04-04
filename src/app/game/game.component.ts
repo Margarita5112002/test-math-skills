@@ -17,8 +17,7 @@ export class GameComponent {
     gameSettings = input<GameSetupSettings>({
         difficulty: MathProblemDifficulty.MID,
         mode: 'zen',
-        timeLimitMinutes: 3,
-        numProblems: 10
+        problemsToFinish: 3
     })
     onGameFinish = output<GameResult>()
     gameTimerSubscription: Subscription | null = null
@@ -91,17 +90,18 @@ export class GameComponent {
     }
 
     shouldFinishGame() {
-        if (this.gameSettings().mode == 'zen' && this.correctProblemsCounter() >= this.gameSettings().numProblems) {
+        const sets = this.gameSettings()
+        if (sets.mode == 'zen' && this.correctProblemsCounter() >= sets.problemsToFinish) {
             this.onGameFinish.emit({
-                ...this.gameSettings(),
+                settings: sets,
                 timeTakenMinutes: this.secondsPassed() / 60,
                 problemsCounter: this.problemsCounter(),
                 tries: this.triesCounter()
             })
-        } else if(this.gameSettings().mode == 'blitz' && this.secondsPassed() >= this.gameSettings().timeLimitMinutes * 60) {
+        } else if(sets.mode == 'blitz' && this.secondsPassed() >= sets.timeLimitMinutes * 60) {
             this.onGameFinish.emit({
-                ...this.gameSettings(),
-                timeTakenMinutes: this.gameSettings().timeLimitMinutes,
+                settings: sets,
+                timeTakenMinutes: sets.timeLimitMinutes,
                 problemsCounter: this.problemsCounter(),
                 tries: this.triesCounter()
             })

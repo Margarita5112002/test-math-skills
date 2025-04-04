@@ -1,8 +1,15 @@
 import { MathProblemDifficulty } from "./math-problem";
 
-export interface GameSetupSettings {
+export interface GameSetupZenMode {
+    mode: 'zen'
     difficulty: MathProblemDifficulty,
-    mode: 'blitz' | 'zen',
-    timeLimitMinutes: number,
-    numProblems: number
+    problemsToFinish: number
 }
+
+export interface GameSetupBlitzMode {
+    mode: 'blitz'
+    difficulty: MathProblemDifficulty,
+    timeLimitMinutes: number
+}
+
+export type GameSetupSettings = GameSetupBlitzMode | GameSetupZenMode
