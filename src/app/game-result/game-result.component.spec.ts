@@ -8,10 +8,11 @@ import userEvent from '@testing-library/user-event'
 describe('Game Result', () => {
     it('should display the total problems and percentage correctly', async () => {
         const gameResult: GameResult = {
-            difficulty: MathProblemDifficulty.MID,
-            mode: 'zen',
-            numProblems: 20,
-            timeLimitMinutes: 3,
+            settings: {
+                difficulty: MathProblemDifficulty.MID,
+                mode: 'zen',
+                problemsToFinish: 20,
+            },
             timeTakenMinutes: 3,
             tries: 70,
             problemsCounter: {
@@ -21,7 +22,7 @@ describe('Game Result', () => {
                 ADD: { correct: 5, fail: 10 },
             }
         }
-        
+
         await render(GameResultComponent, {
             inputs: {
                 gameResultInput: gameResult
@@ -53,10 +54,11 @@ describe('Game Result', () => {
 
     it('should display problems stat even if 0 were problems resolved', async () => {
         const gameResult: GameResult = {
-            difficulty: MathProblemDifficulty.MID,
-            mode: 'zen',
-            numProblems: 18,
-            timeLimitMinutes: 3,
+            settings: {
+                difficulty: MathProblemDifficulty.MID,
+                mode: 'zen',
+                problemsToFinish: 18,
+            },
             timeTakenMinutes: 3,
             tries: 60,
             problemsCounter: {
@@ -66,7 +68,7 @@ describe('Game Result', () => {
                 ADD: { correct: 5, fail: 10 },
             }
         }
-        
+
         await render(GameResultComponent, {
             inputs: {
                 gameResultInput: gameResult
@@ -83,10 +85,11 @@ describe('Game Result', () => {
 
     it('should display time made and average seconds per problem', async () => {
         const gameResult: GameResult = {
-            difficulty: MathProblemDifficulty.MID,
-            mode: 'zen',
-            numProblems: 20,
-            timeLimitMinutes: 3,
+            settings: {
+                difficulty: MathProblemDifficulty.MID,
+                mode: 'zen',
+                problemsToFinish: 20,
+            },
             timeTakenMinutes: 5.5,
             tries: 60,
             problemsCounter: {
@@ -96,7 +99,7 @@ describe('Game Result', () => {
                 ADD: { correct: 5, fail: 10 },
             }
         }
-        
+
         await render(GameResultComponent, {
             inputs: {
                 gameResultInput: gameResult

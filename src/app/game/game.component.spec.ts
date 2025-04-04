@@ -294,8 +294,7 @@ describe('Game Screen', () => {
         const gameSettingsUsed: GameSetupSettings = {
             difficulty: MathProblemDifficulty.EASY,
             mode: 'zen',
-            timeLimitMinutes: 3,
-            numProblems: 10
+            problemsToFinish: 10
         }
 
         const getRandomMathProblemSpy = jest.fn()
@@ -328,7 +327,7 @@ describe('Game Screen', () => {
             await answerNextProblemCorrectly(user, problem)
 
         const resultExpected: GameResult = {
-            ...gameSettingsUsed,
+            settings: gameSettingsUsed,
             timeTakenMinutes: 1,
             problemsCounter: {
                 MULT: { correct: 10, fail: 0 },
@@ -353,8 +352,7 @@ describe('Game Screen', () => {
         const gameSettingsUsed: GameSetupSettings = {
             difficulty: MathProblemDifficulty.EASY,
             mode: 'zen',
-            timeLimitMinutes: 3,
-            numProblems: 10
+            problemsToFinish: 10
         }
 
         const getRandomMathProblemSpy = jest.fn()
@@ -391,7 +389,7 @@ describe('Game Screen', () => {
             await answerNextProblemCorrectly(user, problem)
 
         const resultExpected: GameResult = {
-            ...gameSettingsUsed,
+            settings: gameSettingsUsed,
             timeTakenMinutes: 1,
             problemsCounter: {
                 MULT: { correct: 0, fail: 0 },
@@ -416,8 +414,7 @@ describe('Game Screen', () => {
         const gameSettingsUsed: GameSetupSettings = {
             difficulty: MathProblemDifficulty.EASY,
             mode: 'blitz',
-            timeLimitMinutes: 1,
-            numProblems: 10
+            timeLimitMinutes: 1
         }
 
         jest.useFakeTimers()
@@ -462,7 +459,7 @@ describe('Game Screen', () => {
         jest.advanceTimersByTime(1000)
 
         const resultExpected: GameResult = {
-            ...gameSettingsUsed,
+            settings: gameSettingsUsed,
             timeTakenMinutes: 1,
             problemsCounter: {
                 MULT: { correct: 0, fail: 0 },

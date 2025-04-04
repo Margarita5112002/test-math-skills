@@ -1,5 +1,3 @@
-import { GameSetupSettings } from "./game-setup-settings";
-
 export enum MathProblemType {
     ADD = 'ADD',
     SUB = 'SUB',
