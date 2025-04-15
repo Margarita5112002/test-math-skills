@@ -6,10 +6,11 @@ import { MathProblemService } from '../math-problems/math-problem.service';
 import { GameResult } from '../interfaces/game-result';
 import { GameTimerService } from '../game-timer/game-timer.service';
 import { Subscription } from 'rxjs';
+import { ProgressBarComponent } from "../progress-bar/progress-bar.component";
 
 @Component({
     selector: 'app-game',
-    imports: [FormsModule],
+    imports: [FormsModule, ProgressBarComponent],
     templateUrl: './game.component.html',
     styleUrl: './game.component.css'
 })
@@ -61,6 +62,12 @@ export class GameComponent {
         const minutes = Math.floor(this.secondsPassed() / 60)
         const secondsLeft = this.secondsPassed() - (minutes*60)
         return (minutes > 0 ? `${minutes}m` : '').concat(` ${secondsLeft}s`)
+    })
+    progress = computed(() => {
+        if(this.gameSettings().mode == 'zen') {
+            return Math.round((this.correctProblemsCounter() / this.gameSettings().numProblems)*100)
+        }
+        return Math.round(((this.secondsPassed()/60) / this.gameSettings().timeLimitMinutes)*100)
     })
 
     answer = signal(0)
