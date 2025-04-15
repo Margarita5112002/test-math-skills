@@ -1,0 +1,11 @@
+#bar {
+    width: 100%;
+    background-color: gray;
+}
+
+#progress {
+    display: flex;
+    overflow: hidden;
+    justify-content: center;
+    background-color: rebeccapurple;
+}
