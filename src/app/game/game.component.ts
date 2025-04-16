@@ -64,10 +64,11 @@ export class GameComponent {
         return (minutes > 0 ? `${minutes}m` : '').concat(` ${secondsLeft}s`)
     })
     progress = computed(() => {
-        if(this.gameSettings().mode == 'zen') {
-            return Math.round((this.correctProblemsCounter() / this.gameSettings().numProblems)*100)
+        const sets = this.gameSettings()
+        if(sets.mode == 'zen') {
+            return Math.round((this.correctProblemsCounter() / sets.problemsToFinish)*100)
         }
-        return Math.round(((this.secondsPassed()/60) / this.gameSettings().timeLimitMinutes)*100)
+        return Math.round(((this.secondsPassed()/60) / sets.timeLimitMinutes)*100)
     })
 
     answer = signal(0)
